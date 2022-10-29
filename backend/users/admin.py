@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import User
+from .models import Subscribe, User
 
 
 class UserAdmin(admin.ModelAdmin):
@@ -11,4 +11,10 @@ class UserAdmin(admin.ModelAdmin):
     ordering = ('id',)
 
 
+class SubscribeAdmin(admin.ModelAdmin):
+    list_display = ('date', 'user', 'author', 'id')
+    ordering = ('date',)
+
+
 admin.site.register(User, UserAdmin)
+admin.site.register(Subscribe, SubscribeAdmin)
