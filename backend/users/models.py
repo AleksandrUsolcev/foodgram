@@ -35,6 +35,7 @@ class User(AbstractUser):
 
 
 class Subscribe(models.Model):
+    """ Подписка на пользователя """
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,

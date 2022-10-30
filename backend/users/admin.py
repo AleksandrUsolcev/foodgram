@@ -12,7 +12,7 @@ class UserAdmin(admin.ModelAdmin):
 
 
 class SubscribeAdmin(admin.ModelAdmin):
-    list_display = ('date', 'user', 'author', 'id')
+    list_display = ('date', 'user', 'author')
     ordering = ('date',)
 
 

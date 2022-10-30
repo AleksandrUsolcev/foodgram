@@ -4,6 +4,7 @@ from users.models import User
 
 
 class Tag(models.Model):
+    """ Тег рецепта """
     name = models.CharField(
         verbose_name='Название',
         max_length=254
@@ -25,6 +26,7 @@ class Tag(models.Model):
 
 
 class Ingredient(models.Model):
+    """ Ингредиент """
     name = models.CharField(
         verbose_name='Название',
         max_length=254
@@ -46,6 +48,7 @@ class Ingredient(models.Model):
 
 
 class Recipe(models.Model):
+    """ Рецепт """
     author = models.ForeignKey(
         User,
         verbose_name='Автор',
@@ -87,3 +90,61 @@ class Recipe(models.Model):
 
     def __str__(self):
         return f'{self.name}'
+
+
+class ShoppingCart(models.Model):
+    """Список покупок"""
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name='Пользователь',
+        related_name='cart'
+    )
+    ingredient = models.ForeignKey(
+        Ingredient,
+        on_delete=models.CASCADE,
+        verbose_name='В списке',
+        related_name='users'
+    )
+
+    class Meta:
+        verbose_name = 'Список покупок'
+        verbose_name_plural = 'Списки покупок'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'ingredient'],
+                name='unique_cart',
+            )
+        ]
+
+    def __str__(self):
+        return f'{self.user} add to cart {self.ingredient}'
+
+
+class Favorite(models.Model):
+    """Избранное"""
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name='Пользователь',
+        related_name='favorites'
+    )
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+        verbose_name='В избранном',
+        related_name='users'
+    )
+
+    class Meta:
+        verbose_name = 'Избранное'
+        verbose_name_plural = 'Избранное'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'recipe'],
+                name='unique_favorite',
+            )
+        ]
+
+    def __str__(self):
+        return f'{self.user} follow {self.recipe}'
