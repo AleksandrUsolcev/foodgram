@@ -31,12 +31,12 @@ class Ingredient(models.Model):
         verbose_name='Название',
         max_length=254
     )
-    count = models.PositiveIntegerField(
-        verbose_name='Количество'
-    )
     measurement_unit = models.CharField(
         verbose_name='Единица измерения',
         max_length=64
+    )
+    amount = models.PositiveIntegerField(
+        verbose_name='Количество'
     )
 
     class Meta:
@@ -87,6 +87,7 @@ class Recipe(models.Model):
     class Meta:
         verbose_name = 'Рецепт'
         verbose_name_plural = 'Рецепты'
+        ordering = ['-created']
 
     def __str__(self):
         return f'{self.name}'

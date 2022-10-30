@@ -12,7 +12,7 @@ class RecipeAdmin(admin.ModelAdmin):
 
 
 class IngredientAdmin(admin.ModelAdmin):
-    list_display = ('name', 'measurement_unit', 'count')
+    list_display = ('name', 'measurement_unit', 'amount')
     list_filter = ('name',)
     ordering = ('id',)
 
