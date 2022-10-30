@@ -1,8 +1,9 @@
-from recipes.models import Recipe, ShoppingCart, Tag
+from recipes.models import Ingredient, Recipe, ShoppingCart, Tag
 from rest_framework.viewsets import ModelViewSet
-from users.models import User
+from users.models import Subscribe, User
 
-from .serializers import (RecipeSerializer, ShoppingCartSerializer,
+from .serializers import (IngredientSerializer, RecipeSerializer,
+                          ShoppingCartSerializer, SubscribeSerializer,
                           TagSerializer, UserSerializer)
 
 
@@ -26,3 +27,15 @@ class RecipeViewSet(ModelViewSet):
 class ShoppingCartViewSet(ModelViewSet):
     serializer_class = ShoppingCartSerializer
     queryset = ShoppingCart.objects.all()
+
+
+class SubscribeViewSet(ModelViewSet):
+    serializer_class = SubscribeSerializer
+    queryset = Subscribe.objects.all()
+
+
+class IngredientViewSet(ModelViewSet):
+    serializer_class = IngredientSerializer
+    queryset = Ingredient.objects.all()
+    filterset_fields = ('name', 'measurement_unit')
+    search_fields = ('name',)

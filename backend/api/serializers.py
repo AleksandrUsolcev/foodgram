@@ -1,9 +1,9 @@
 import base64
 
 from django.core.files.base import ContentFile
-from recipes.models import Recipe, ShoppingCart, Tag
+from recipes.models import Recipe, ShoppingCart, Tag, Ingredient
 from rest_framework import serializers
-from users.models import User
+from users.models import User, Subscribe
 
 
 class Base64ImageField(serializers.ImageField):
@@ -43,4 +43,16 @@ class RecipeSerializer(serializers.ModelSerializer):
 class ShoppingCartSerializer(serializers.ModelSerializer):
     class Meta:
         model = ShoppingCart
+        fields = '__all__'
+
+
+class SubscribeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Subscribe
+        fields = '__all__'
+
+
+class IngredientSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Ingredient
         fields = '__all__'
