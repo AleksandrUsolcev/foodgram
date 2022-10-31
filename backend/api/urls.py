@@ -14,5 +14,7 @@ v10.register('subscriptions', views.SubscribeViewSet, basename='subscriptions')
 v10.register('ingredients', views.IngredientViewSet, basename='ingredients')
 
 urlpatterns = [
-    path('', include(v10.urls))
+    path('', include(v10.urls)),
+    path('auth/', include('djoser.urls')),
+    path('auth/', include('djoser.urls.authtoken')),
 ]
