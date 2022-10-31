@@ -1,15 +1,7 @@
 version: '3.3'
 services:
 
-  frontend:
-    build:
-      context: ../frontend
-      dockerfile: Dockerfile
-    volumes:
-      - ../frontend/:/app/result_build/
-
   web:
-    container_name: web
     build:
       context: ../backend
       dockerfile: Dockerfile
@@ -19,6 +11,15 @@ services:
       - media:/app/media/
     env_file:
       - ./.env
+
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    volumes:
+      - ../frontend/:/app/result_build/
+    depends_on:
+      - web
 
   nginx:
     image: nginx:1.19.3

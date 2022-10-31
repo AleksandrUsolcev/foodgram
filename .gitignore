@@ -134,3 +134,4 @@ dmypy.json
 .vscode
 
 backend/media/
+frontend/node_modules/
