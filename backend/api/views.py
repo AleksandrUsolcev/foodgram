@@ -14,6 +14,7 @@ class TagViewSet(ModelViewSet):
     queryset = Tag.objects.all()
     permission_classes = (AllowAny,)
     http_method_names = ('get',)
+    pagination_class = None
 
 
 class RecipeViewSet(ModelViewSet):

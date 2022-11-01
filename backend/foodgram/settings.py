@@ -84,6 +84,8 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.TokenAuthentication',
     ),
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 20,
 }
 
 LANGUAGE_CODE = 'en-us'
@@ -122,13 +124,13 @@ DJOSER = {
         'current_user': 'api.serializers.UserListSerializer',
     },
     "PERMISSIONS": {
-        'user_list': ['rest_framework.permissions.IsAuthenticated'],
-        'user': ['rest_framework.permissions.IsAuthenticated'],
-        'current_user': ['rest_framework.permissions.IsAuthenticated'],
+        'user_list': ['users.permissions.UserPermission'],
+        'user': ['users.permissions.UserPermission'],
+        'current_user': ['users.permissions.UserPermission'],
         'activation': ['rest_framework.permissions.IsAdminUser'],
         'password_reset': ['rest_framework.permissions.IsAdminUser'],
         'password_reset_confirm': ['rest_framework.permissions.IsAdminUser'],
-        'set_password': ['rest_framework.permissions.CurrentUserOrAdmin'],
+        'set_password': ['rest_framework.permissions.IsAuthenticated'],
         'username_reset': ['rest_framework.permissions.IsAdminUser'],
         'username_reset_confirm': ['rest_framework.permissions.IsAdminUser'],
         'set_username': ['rest_framework.permissions.IsAdminUser'],
