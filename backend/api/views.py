@@ -1,32 +1,12 @@
 from recipes.models import Ingredient, Recipe, ShoppingCart, Tag
-from rest_framework import status
-from rest_framework.decorators import action
-from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework.response import Response
+from rest_framework.permissions import AllowAny
 from rest_framework.viewsets import ModelViewSet
-from users.models import Subscribe, User
+from users.models import Subscribe
 
-from .permissions import UserPermission
 from .serializers import (IngredientSerializer, RecipeSerializer,
                           ShoppingCartSerializer, SubscribeSerializer,
-                          TagSerializer, UserSerializer)
+                          TagSerializer)
 from .utils import StandardPagination
-
-
-class UserViewSet(ModelViewSet):
-    serializer_class = UserSerializer
-    queryset = User.objects.all()
-    permission_classes = (UserPermission,)
-
-    @action(
-        methods=['GET'],
-        detail=False,
-        permission_classes=(IsAuthenticated,),
-        url_path='me'
-    )
-    def get_profile(self, request):
-        response = UserSerializer(request.user).data
-        return Response(response, status=status.HTTP_200_OK)
 
 
 class TagViewSet(ModelViewSet):
@@ -42,6 +22,8 @@ class RecipeViewSet(ModelViewSet):
     filterset_fields = ('tags', 'author')
     search_fields = ('tags', 'author')
     pagination_class = StandardPagination
+    permission_classes = (AllowAny,)
+    http_method_names = ('get', 'post')
 
 
 class ShoppingCartViewSet(ModelViewSet):

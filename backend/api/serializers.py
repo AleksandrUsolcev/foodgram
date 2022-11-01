@@ -15,26 +15,22 @@ class Base64ImageField(serializers.ImageField):
         return super().to_internal_value(data)
 
 
-class UserSerializer(serializers.ModelSerializer):
+class UserListSerializer(serializers.ModelSerializer):
     first_name = serializers.CharField(required=True)
     last_name = serializers.CharField(required=True)
+    is_subscribed = serializers.SerializerMethodField('get_subscribed_info')
 
     class Meta:
         model = User
-        fields = ('email', 'id', 'username',
-                  'first_name', 'last_name', 'password')
-        extra_kwargs = {'password': {'write_only': True}}
+        fields = ('email', 'id', 'username', 'first_name',
+                  'last_name', 'is_subscribed')
 
-    def create(self, validated_data):
-        user = User(
-            username=validated_data['username'],
-            email=validated_data['email'],
-            first_name=validated_data['first_name'],
-            last_name=validated_data['last_name'],
-        )
-        user.set_password(validated_data['password'])
-        user.save()
-        return user
+    def get_subscribed_info(self, obj):
+        request = self.context.get('request')
+        if request.user.is_authenticated:
+            subscribed = request.user.subscribed.filter(author=obj)
+            return subscribed.exists()
+        return False
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -65,7 +61,7 @@ class RecipeSerializer(serializers.ModelSerializer):
     image = Base64ImageField(required=True)
     tags = TagSerializer(many=True)
     ingredients = IngredientSerializer(many=True)
-    author = UserSerializer(required=True)
+    author = UserListSerializer(required=True)
 
     class Meta:
         model = Recipe

@@ -9,14 +9,14 @@ class User(AbstractUser):
         unique=True
     )
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username']
+    REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
 
     class Meta:
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
 
     def __str__(self):
-        return self.username
+        return self.email
 
     def save(self, *args, **kwargs):
         self.email = self.email.lower()
