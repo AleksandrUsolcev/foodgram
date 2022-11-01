@@ -4,22 +4,12 @@ from django.db import models
 
 class User(AbstractUser):
     """ Переопределенный пользователь """
-    ADMIN = 'admin'
-    USER = 'user'
-    ROLES = (
-        (ADMIN, 'Администратор'),
-        (USER, 'Авторизованный пользователь')
+    email = models.EmailField(
+        verbose_name='Электронная почта',
+        unique=True
     )
-    role = models.CharField(
-        verbose_name='Роль',
-        choices=ROLES,
-        max_length=10,
-        default='user'
-    )
-
-    @property
-    def role_admin(self):
-        return self.role == self.ADMIN
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['username']
 
     class Meta:
         verbose_name = 'Пользователь'
@@ -29,8 +19,7 @@ class User(AbstractUser):
         return self.username
 
     def save(self, *args, **kwargs):
-        if self.is_superuser:
-            self.role = 'admin'
+        self.email = self.email.lower()
         super().save(*args, **kwargs)
 
 

@@ -113,7 +113,3 @@ EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'sent_emails')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'users.User'
-
-DJOSER = {
-    'LOGIN_FIELD': 'email'
-}
