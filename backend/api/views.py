@@ -1,12 +1,14 @@
+from django_filters.rest_framework import DjangoFilterBackend
 from recipes.models import Ingredient, Recipe, ShoppingCart, Tag
+from rest_framework.filters import SearchFilter
 from rest_framework.permissions import AllowAny
 from rest_framework.viewsets import ModelViewSet
 from users.models import Subscribe
 
+from .filters import RecipeFilter
 from .serializers import (IngredientSerializer, RecipeSerializer,
                           ShoppingCartSerializer, SubscribeSerializer,
                           TagSerializer)
-from .utils import StandardPagination
 
 
 class TagViewSet(ModelViewSet):
@@ -20,11 +22,10 @@ class TagViewSet(ModelViewSet):
 class RecipeViewSet(ModelViewSet):
     serializer_class = RecipeSerializer
     queryset = Recipe.objects.all()
-    filterset_fields = ('tags', 'author')
-    search_fields = ('tags', 'author')
-    pagination_class = StandardPagination
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = RecipeFilter
     permission_classes = (AllowAny,)
-    http_method_names = ('get', 'post')
+    http_method_names = ('get', 'post', 'patch', 'delete')
 
 
 class ShoppingCartViewSet(ModelViewSet):
@@ -40,5 +41,8 @@ class SubscribeViewSet(ModelViewSet):
 class IngredientViewSet(ModelViewSet):
     serializer_class = IngredientSerializer
     queryset = Ingredient.objects.all()
-    filterset_fields = ('name', 'measurement_unit')
+    filter_backends = (DjangoFilterBackend, SearchFilter)
+    filterset_fields = ('name',)
     search_fields = ('name',)
+    permission_classes = (AllowAny,)
+    http_method_names = ('get',)
