@@ -62,6 +62,8 @@ class RecipeSerializer(serializers.ModelSerializer):
     tags = TagSerializer(many=True)
     ingredients = IngredientSerializer(many=True, required=True)
     author = UserListSerializer(required=True)
+    is_favorited = serializers.SerializerMethodField('get_favorited_info')
+    is_in_shopping_cart = serializers.SerializerMethodField('get_cart_info')
 
     class Meta:
         model = Recipe
@@ -71,3 +73,13 @@ class RecipeSerializer(serializers.ModelSerializer):
         instance.image = validated_data.get('image', instance.image)
         instance.save()
         return instance
+
+    def get_favorited_info(self, obj):
+        request = self.context.get('request')
+        if request.user.is_authenticated:
+            favorites = request.user.favorites.filter(recipe=obj)
+            return favorites.exists()
+        return False
+
+    def get_cart_info(self, obj):
+        return False
