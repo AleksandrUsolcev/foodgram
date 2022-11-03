@@ -9,7 +9,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.getenv(
     'DJANGO_SECRET_KEY',
-    default="change-me-if-the-project-is-not-running-in-demo")
+    default="change-me-in-env-if-the-project-is-not-running-in-demo")
 
 DEBUG = True
 

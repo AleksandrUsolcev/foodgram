@@ -15,7 +15,12 @@ class RecipeFilter(django_filters.FilterSet):
     def favorite_filter(self, queryset, name, value):
         if value == 1:
             user = self.request.user
-            return queryset.filter(users__user_id=user.id)
+            return queryset.filter(favorited__user_id=user.id)
+
+    def cart_filter(self, queryset, name, value):
+        if value == 1:
+            user = self.request.user
+            return queryset.filter(in_shopping_cart__user_id=user.id)
 
     class Meta:
         model = Recipe

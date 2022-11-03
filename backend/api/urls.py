@@ -9,7 +9,6 @@ v10 = DefaultRouter()
 
 v10.register('tags', views.TagViewSet, basename='tags')
 v10.register('recipes', views.RecipeViewSet, basename='recipes')
-v10.register('subscriptions', views.SubscribeViewSet, basename='subscriptions')
 v10.register('ingredients', views.IngredientViewSet, basename='ingredients')
 
 urlpatterns = [

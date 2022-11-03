@@ -7,12 +7,9 @@ from rest_framework.filters import SearchFilter
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
-from users.models import Subscribe
 
 from .filters import RecipeFilter
-from .serializers import (IngredientSerializer, RecipeSerializer,
-                          ShoppingCartSerializer, SubscribeSerializer,
-                          TagSerializer)
+from .serializers import IngredientSerializer, RecipeSerializer, TagSerializer
 
 
 class TagViewSet(ModelViewSet):
@@ -60,15 +57,34 @@ class RecipeViewSet(ModelViewSet):
             return Response({'errors': 'recipe not in favorited list'},
                             status=status.HTTP_400_BAD_REQUEST)
 
+    @action(
+        methods=['POST', 'DELETE'],
+        detail=False,
+        url_path=r'(?P<recipe_id>\d+)/shopping_cart',
+        url_name='recipe_cart',
+        permission_classes=[IsAuthenticated]
+    )
+    def cart(self, request, *args, **kwargs):
+        user = self.request.user
+        recipe = get_object_or_404(Recipe, pk=self.kwargs.get('recipe_id'))
+        cart = ShoppingCart.objects.filter(user=user, recipe=recipe)
 
-class ShoppingCartViewSet(ModelViewSet):
-    serializer_class = ShoppingCartSerializer
-    queryset = ShoppingCart.objects.all()
+        if request.method == 'POST' and cart.exists():
+            return Response(
+                {'errors': 'already in shopping cart'},
+                status=status.HTTP_400_BAD_REQUEST)
+        elif request.method == 'POST':
+            ShoppingCart.objects.create(user=user, recipe=recipe)
+            return Response(
+                {'detail': 'success'},
+                status=status.HTTP_201_CREATED)
 
-
-class SubscribeViewSet(ModelViewSet):
-    serializer_class = SubscribeSerializer
-    queryset = Subscribe.objects.all()
+        if request.method == 'DELETE' and cart.exists():
+            cart.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        elif request.method == 'DELETE':
+            return Response({'errors': 'recipe not in shopping cart'},
+                            status=status.HTTP_400_BAD_REQUEST)
 
 
 class IngredientViewSet(ModelViewSet):
