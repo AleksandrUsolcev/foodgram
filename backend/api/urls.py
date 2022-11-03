@@ -22,7 +22,8 @@ v10.register(
 )
 
 urlpatterns = [
+    path('recipes/download_shopping_cart/', views.CartDownloadView.as_view()),
     path('', include(v10.urls)),
     path('', include('djoser.urls')),
-    path('auth/', include('djoser.urls.authtoken')),
+    path('auth/', include('djoser.urls.authtoken'))
 ]

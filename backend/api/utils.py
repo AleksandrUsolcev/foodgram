@@ -1,4 +1,11 @@
+import io
+
+from django.conf import settings
+from django.http import FileResponse
 from django.shortcuts import get_object_or_404
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.pdfgen.canvas import Canvas
 from rest_framework.response import Response
 from rest_framework.status import (HTTP_201_CREATED, HTTP_204_NO_CONTENT,
                                    HTTP_400_BAD_REQUEST)
@@ -32,3 +39,50 @@ def add_remove(self, request, target, obj, target_obj):
         return Response(SUCESS_DELETE, status=HTTP_204_NO_CONTENT)
     elif request.method == 'DELETE':
         return Response(NOT_IN_LIST, status=HTTP_400_BAD_REQUEST)
+
+
+def pdf_list_response():
+    buffer = io.BytesIO()
+    canvas = Canvas(buffer)
+
+    SANS_REGULAR = settings.STATIC_ROOT + '/fonts/OpenSans-Regular.ttf'
+    SANS_REGULAR_NAME = 'OpenSans-Regular'
+    SANS_BOLD = settings.STATIC_ROOT + '/fonts/OpenSans-Bold.ttf'
+    SANS_BOLD_NAME = 'OpenSans-Bold'
+
+    FILE_NAME = 'shopping_list.pdf'
+
+    pdfmetrics.registerFont(TTFont(SANS_REGULAR_NAME, SANS_REGULAR))
+    pdfmetrics.registerFont(TTFont(SANS_BOLD_NAME, SANS_BOLD))
+
+    canvas.setFont(SANS_BOLD_NAME, 32)
+    canvas.drawString(100, 750, 'foodgram')
+    canvas.setFont(SANS_REGULAR_NAME, 13)
+    canvas.drawString(100, 725, 'Ваш продуктовый помощник')
+    canvas.line(100, 715, 500, 715)
+    canvas.setFont(SANS_BOLD_NAME, 13)
+    canvas.drawString(393, 700, 'cписок покупок')
+    canvas.setFont(SANS_REGULAR_NAME, 10)
+
+    padding_top = 680
+    page_number = 1
+    for i in range(100):
+        if padding_top <= 80:
+            canvas.showPage()
+            canvas.line(100, 770, 500, 770)
+            canvas.setFont(SANS_BOLD_NAME, 13)
+            canvas.drawString(393, 755, 'cписок покупок')
+            canvas.setFont(SANS_REGULAR_NAME, 10)
+            page_number += 1
+            padding_top = 735
+            canvas.drawString(100, 780, f'стр. {page_number}')
+        product = 'Картошка'
+        amount = 2
+        unit = 'шт'
+        string = f'{i+1}. {product[0:48]} ({unit[0:10]}) — {amount}'
+        canvas.drawString(100, padding_top, string)
+        padding_top -= 19
+
+    canvas.save()
+    buffer.seek(0)
+    return FileResponse(buffer, as_attachment=True, filename=FILE_NAME)

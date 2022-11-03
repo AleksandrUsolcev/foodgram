@@ -3,13 +3,14 @@ from recipes.models import Favorite, Ingredient, Recipe, ShoppingCart, Tag
 from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
 from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet, ViewSet
 from users.models import Subscribe, User
 
 from .filters import RecipeFilter
 from .serializers import (IngredientSerializer, RecipeSerializer,
                           TagSerializer, UserSubscribeSerializer)
-from .utils import add_remove
+from .utils import add_remove, pdf_list_response
 
 
 class TagViewSet(ModelViewSet):
@@ -36,7 +37,8 @@ class RecipeViewSet(ModelViewSet):
         permission_classes=[IsAuthenticated]
     )
     def favorite(self, request, *args, **kwargs):
-        return add_remove(self, request, 'recipe', Favorite, Recipe)
+        action = add_remove(self, request, 'recipe', Favorite, Recipe)
+        return action
 
     @action(
         methods=['POST', 'DELETE'],
@@ -46,7 +48,13 @@ class RecipeViewSet(ModelViewSet):
         permission_classes=[IsAuthenticated]
     )
     def cart(self, request, *args, **kwargs):
-        return add_remove(self, request, 'recipe', ShoppingCart, Recipe)
+        action = add_remove(self, request, 'recipe', ShoppingCart, Recipe)
+        return action
+
+
+class CartDownloadView(APIView):
+    def get(self, request):
+        return pdf_list_response()
 
 
 class IngredientViewSet(ModelViewSet):
@@ -81,4 +89,5 @@ class UserSubscribeActionViewSet(ViewSet):
         permission_classes=[IsAuthenticated]
     )
     def subscribe(self, request, *args, **kwargs):
-        return add_remove(self, request, 'author', Subscribe, User)
+        action = add_remove(self, request, 'author', Subscribe, User)
+        return action
