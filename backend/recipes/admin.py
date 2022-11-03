@@ -4,11 +4,16 @@ from .models import Favorite, Ingredient, Recipe, ShoppingCart, Tag
 
 
 class RecipeAdmin(admin.ModelAdmin):
-    list_display = ('created', 'name', 'author')
+    list_display = ('created', 'name', 'author', 'favorited_count')
     list_editable = ('name',)
     list_filter = ('author', 'name', 'tags')
     ordering = ('created',)
-# На странице рецепта вывести общее число добавлений этого рецепта в избранное.
+    readonly_fields = ('favorited_count',)
+
+    def favorited_count(self, obj):
+        return obj.favorited.count()
+
+    favorited_count.short_description = 'В избранном'
 
 
 class IngredientAdmin(admin.ModelAdmin):
