@@ -1,17 +1,15 @@
-from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from recipes.models import Favorite, Ingredient, Recipe, ShoppingCart, Tag
-from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ViewSet
-from users.models import User, Subscribe
+from users.models import Subscribe, User
 
 from .filters import RecipeFilter
 from .serializers import (IngredientSerializer, RecipeSerializer,
                           TagSerializer, UserSubscribeSerializer)
+from .utils import add_remove
 
 
 class TagViewSet(ModelViewSet):
@@ -33,60 +31,22 @@ class RecipeViewSet(ModelViewSet):
     @action(
         methods=['POST', 'DELETE'],
         detail=False,
-        url_path=r'(?P<recipe_id>\d+)/favorite',
+        url_path=r'(?P<recipe>\d+)/favorite',
         url_name='recipe_favorite',
         permission_classes=[IsAuthenticated]
     )
     def favorite(self, request, *args, **kwargs):
-        user = self.request.user
-        recipe = get_object_or_404(Recipe, pk=self.kwargs.get('recipe_id'))
-        favorite = Favorite.objects.filter(user=user, recipe=recipe)
-
-        if request.method == 'POST' and favorite.exists():
-            return Response(
-                {'errors': 'already in favorited list'},
-                status=status.HTTP_400_BAD_REQUEST)
-        elif request.method == 'POST':
-            Favorite.objects.create(user=user, recipe=recipe)
-            return Response(
-                {'detail': 'success'},
-                status=status.HTTP_201_CREATED)
-
-        if request.method == 'DELETE' and favorite.exists():
-            favorite.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        elif request.method == 'DELETE':
-            return Response({'errors': 'recipe not in favorited list'},
-                            status=status.HTTP_400_BAD_REQUEST)
+        return add_remove(self, request, 'recipe', Favorite, Recipe)
 
     @action(
         methods=['POST', 'DELETE'],
         detail=False,
-        url_path=r'(?P<recipe_id>\d+)/shopping_cart',
+        url_path=r'(?P<recipe>\d+)/shopping_cart',
         url_name='recipe_cart',
         permission_classes=[IsAuthenticated]
     )
     def cart(self, request, *args, **kwargs):
-        user = self.request.user
-        recipe = get_object_or_404(Recipe, pk=self.kwargs.get('recipe_id'))
-        cart = ShoppingCart.objects.filter(user=user, recipe=recipe)
-
-        if request.method == 'POST' and cart.exists():
-            return Response(
-                {'errors': 'already in shopping cart'},
-                status=status.HTTP_400_BAD_REQUEST)
-        elif request.method == 'POST':
-            ShoppingCart.objects.create(user=user, recipe=recipe)
-            return Response(
-                {'detail': 'success'},
-                status=status.HTTP_201_CREATED)
-
-        if request.method == 'DELETE' and cart.exists():
-            cart.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        elif request.method == 'DELETE':
-            return Response({'errors': 'recipe not in shopping cart'},
-                            status=status.HTTP_400_BAD_REQUEST)
+        return add_remove(self, request, 'recipe', ShoppingCart, Recipe)
 
 
 class IngredientViewSet(ModelViewSet):
@@ -116,28 +76,9 @@ class UserSubscribeActionViewSet(ViewSet):
     @action(
         methods=['POST', 'DELETE'],
         detail=False,
-        url_path=r'(?P<user_id>\d+)/subscribe',
+        url_path=r'(?P<author>\d+)/subscribe',
         url_name='user_subscribe',
         permission_classes=[IsAuthenticated]
     )
     def subscribe(self, request, *args, **kwargs):
-        user = self.request.user
-        author = get_object_or_404(User, pk=self.kwargs.get('user_id'))
-        subscribe = Subscribe.objects.filter(user=user, author=author)
-
-        if request.method == 'POST' and subscribe.exists():
-            return Response(
-                {'errors': 'already in subscribed list'},
-                status=status.HTTP_400_BAD_REQUEST)
-        elif request.method == 'POST':
-            Subscribe.objects.create(user=user, author=author)
-            return Response(
-                {'detail': 'success'},
-                status=status.HTTP_201_CREATED)
-
-        if request.method == 'DELETE' and subscribe.exists():
-            subscribe.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        elif request.method == 'DELETE':
-            return Response({'errors': 'user not in subscribed list'},
-                            status=status.HTTP_400_BAD_REQUEST)
+        return add_remove(self, request, 'author', Subscribe, User)
