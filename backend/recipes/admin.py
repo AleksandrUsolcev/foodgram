@@ -23,7 +23,7 @@ class TagAdmin(admin.ModelAdmin):
 
 
 class ShoppingCartAdmin(admin.ModelAdmin):
-    list_display = ('user', 'ingredient')
+    list_display = ('user', 'recipe')
     ordering = ('user',)
 
 
