@@ -15,6 +15,11 @@ v10.register(
     views.UserSubscribeViewSet,
     basename='users_subscribe'
 )
+v10.register(
+    'users',
+    views.UserSubscribeActionViewSet,
+    basename='users_subscribe_action'
+)
 
 urlpatterns = [
     path('', include(v10.urls)),

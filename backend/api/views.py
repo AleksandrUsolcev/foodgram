@@ -6,8 +6,8 @@ from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.viewsets import ModelViewSet
-from users.models import User
+from rest_framework.viewsets import ModelViewSet, ViewSet
+from users.models import User, Subscribe
 
 from .filters import RecipeFilter
 from .serializers import (IngredientSerializer, RecipeSerializer,
@@ -108,3 +108,36 @@ class UserSubscribeViewSet(ModelViewSet):
         user = self.request.user
         subscribed = User.objects.filter(subscribers__user=user)
         return subscribed
+
+
+class UserSubscribeActionViewSet(ViewSet):
+    http_method_names = ('post', 'delete')
+
+    @action(
+        methods=['POST', 'DELETE'],
+        detail=False,
+        url_path=r'(?P<user_id>\d+)/subscribe',
+        url_name='user_subscribe',
+        permission_classes=[IsAuthenticated]
+    )
+    def subscribe(self, request, *args, **kwargs):
+        user = self.request.user
+        author = get_object_or_404(User, pk=self.kwargs.get('user_id'))
+        subscribe = Subscribe.objects.filter(user=user, author=author)
+
+        if request.method == 'POST' and subscribe.exists():
+            return Response(
+                {'errors': 'already in subscribed list'},
+                status=status.HTTP_400_BAD_REQUEST)
+        elif request.method == 'POST':
+            Subscribe.objects.create(user=user, author=author)
+            return Response(
+                {'detail': 'success'},
+                status=status.HTTP_201_CREATED)
+
+        if request.method == 'DELETE' and subscribe.exists():
+            subscribe.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        elif request.method == 'DELETE':
+            return Response({'errors': 'user not in subscribed list'},
+                            status=status.HTTP_400_BAD_REQUEST)
