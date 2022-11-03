@@ -75,3 +75,22 @@ class RecipeSerializer(serializers.ModelSerializer):
             cart = request.user.cart.filter(recipe=obj)
             return cart.exists()
         return False
+
+
+class RecipeShortSerializer(RecipeSerializer):
+    class Meta:
+        model = Recipe
+        fields = ('id', 'name', 'image', 'cooking_time')
+
+
+class UserSubscribeSerializer(UserListSerializer):
+    recipes = RecipeShortSerializer(many=True)
+    recipes_count = serializers.SerializerMethodField('get_recipes_count')
+
+    class Meta:
+        model = User
+        fields = ('email', 'id', 'username', 'first_name',
+                  'last_name', 'is_subscribed', 'recipes', 'recipes_count')
+
+    def get_recipes_count(self, obj):
+        return obj.recipes.count()

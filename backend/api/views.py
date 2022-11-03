@@ -7,9 +7,11 @@ from rest_framework.filters import SearchFilter
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
+from users.models import User
 
 from .filters import RecipeFilter
-from .serializers import IngredientSerializer, RecipeSerializer, TagSerializer
+from .serializers import (IngredientSerializer, RecipeSerializer,
+                          TagSerializer, UserSubscribeSerializer)
 
 
 class TagViewSet(ModelViewSet):
@@ -95,3 +97,14 @@ class IngredientViewSet(ModelViewSet):
     search_fields = ('name',)
     permission_classes = (AllowAny,)
     http_method_names = ('get',)
+
+
+class UserSubscribeViewSet(ModelViewSet):
+    serializer_class = UserSubscribeSerializer
+    http_method_names = ('get',)
+    permission_classes = (IsAuthenticated,)
+
+    def get_queryset(self):
+        user = self.request.user
+        subscribed = User.objects.filter(subscribers__user=user)
+        return subscribed
