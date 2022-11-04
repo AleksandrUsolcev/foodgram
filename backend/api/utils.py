@@ -1,4 +1,4 @@
-import io
+from io import BytesIO
 
 from django.conf import settings
 from django.http import FileResponse
@@ -41,9 +41,11 @@ def add_remove(self, request, target, obj, target_obj):
         return Response(NOT_IN_LIST, status=HTTP_400_BAD_REQUEST)
 
 
-def pdf_list_response():
-    buffer = io.BytesIO()
-    canvas = Canvas(buffer)
+def shopping_list_pdf(cart):
+    """ Выгрузка списка покупок в pdf """
+
+    buffer = BytesIO()
+    can = Canvas(buffer)
 
     SANS_REGULAR = settings.STATIC_ROOT + '/fonts/OpenSans-Regular.ttf'
     SANS_REGULAR_NAME = 'OpenSans-Regular'
@@ -54,35 +56,37 @@ def pdf_list_response():
 
     pdfmetrics.registerFont(TTFont(SANS_REGULAR_NAME, SANS_REGULAR))
     pdfmetrics.registerFont(TTFont(SANS_BOLD_NAME, SANS_BOLD))
+    can.setTitle('Список покупок')
 
-    canvas.setFont(SANS_BOLD_NAME, 32)
-    canvas.drawString(100, 750, 'foodgram')
-    canvas.setFont(SANS_REGULAR_NAME, 13)
-    canvas.drawString(100, 725, 'Ваш продуктовый помощник')
-    canvas.line(100, 715, 500, 715)
-    canvas.setFont(SANS_BOLD_NAME, 13)
-    canvas.drawString(393, 700, 'cписок покупок')
-    canvas.setFont(SANS_REGULAR_NAME, 10)
+    can.setFont(SANS_BOLD_NAME, 32)
+    can.drawString(100, 750, 'foodgram')
+    can.setFont(SANS_REGULAR_NAME, 13)
+    can.drawString(100, 725, 'Ваш продуктовый помощник')
+    can.line(100, 715, 500, 715)
+    can.setFont(SANS_BOLD_NAME, 13)
+    can.drawString(393, 700, 'cписок покупок')
+    can.setFont(SANS_REGULAR_NAME, 10)
 
     padding_top = 680
     page_number = 1
-    for i in range(100):
+    for step, ingredient in enumerate(cart):
+        ingredient = list(ingredient.values())
         if padding_top <= 80:
-            canvas.showPage()
-            canvas.line(100, 770, 500, 770)
-            canvas.setFont(SANS_BOLD_NAME, 13)
-            canvas.drawString(393, 755, 'cписок покупок')
-            canvas.setFont(SANS_REGULAR_NAME, 10)
+            can.showPage()
+            can.line(100, 770, 500, 770)
+            can.setFont(SANS_BOLD_NAME, 13)
+            can.drawString(393, 755, 'cписок покупок')
+            can.setFont(SANS_REGULAR_NAME, 10)
             page_number += 1
             padding_top = 735
-            canvas.drawString(100, 780, f'стр. {page_number}')
-        product = 'Картошка'
-        amount = 2
-        unit = 'шт'
-        string = f'{i+1}. {product[0:48]} ({unit[0:10]}) — {amount}'
-        canvas.drawString(100, padding_top, string)
+            can.drawString(100, 780, f'стр. {page_number}')
+        product = ingredient[0]
+        unit = ingredient[1]
+        total = ingredient[2]
+        string = f'{step+1}. {product[0:48]} ({unit[0:10]}) — {total}'
+        can.drawString(100, padding_top, string)
         padding_top -= 19
 
-    canvas.save()
+    can.save()
     buffer.seek(0)
     return FileResponse(buffer, as_attachment=True, filename=FILE_NAME)

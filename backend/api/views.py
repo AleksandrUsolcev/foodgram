@@ -1,3 +1,4 @@
+from django.db.models import Sum
 from django_filters.rest_framework import DjangoFilterBackend
 from recipes.models import Favorite, Ingredient, Recipe, ShoppingCart, Tag
 from rest_framework.decorators import action
@@ -10,7 +11,7 @@ from users.models import Subscribe, User
 from .filters import RecipeFilter
 from .serializers import (IngredientSerializer, RecipeSerializer,
                           TagSerializer, UserSubscribeSerializer)
-from .utils import add_remove, pdf_list_response
+from .utils import add_remove, shopping_list_pdf
 
 
 class TagViewSet(ModelViewSet):
@@ -54,7 +55,13 @@ class RecipeViewSet(ModelViewSet):
 
 class CartDownloadView(APIView):
     def get(self, request):
-        return pdf_list_response()
+        cart = request.user.cart.values(
+            'recipe__ingredients__name',
+            'recipe__ingredients__measurement_unit').order_by(
+            'recipe__ingredients__name').annotate(
+            total=Sum('recipe__ingredients__amount'))
+        response = shopping_list_pdf(cart)
+        return response
 
 
 class IngredientViewSet(ModelViewSet):
