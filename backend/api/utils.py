@@ -69,8 +69,16 @@ def shopping_list_pdf(cart):
 
     padding_top = 680
     page_number = 1
+    steps = len(cart)
+    last_step = steps - 1
     for step, ingredient in enumerate(cart):
         ingredient = list(ingredient.values())
+        if step == last_step and steps >= 3:
+            x = padding_top - 20
+            can.line(100, x, 500, x)
+            can.setFont(SANS_BOLD_NAME, 13)
+            can.drawString(362, x - 15, 'приятного аппетита')
+            can.setFont(SANS_REGULAR_NAME, 10)
         if padding_top <= 80:
             can.showPage()
             can.line(100, 770, 500, 770)

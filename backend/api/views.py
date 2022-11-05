@@ -9,6 +9,7 @@ from rest_framework.viewsets import ModelViewSet, ViewSet
 from users.models import Subscribe, User
 
 from .filters import RecipeFilter
+from .paginators import CustomPagination
 from .serializers import (IngredientSerializer, RecipeSerializer,
                           TagSerializer, UserSubscribeSerializer)
 from .utils import add_remove, shopping_list_pdf
@@ -29,6 +30,7 @@ class RecipeViewSet(ModelViewSet):
     filterset_class = RecipeFilter
     permission_classes = (AllowAny,)
     http_method_names = ('get', 'post', 'patch', 'delete')
+    pagination_class = CustomPagination
 
     @action(
         methods=['POST', 'DELETE'],
@@ -78,6 +80,7 @@ class UserSubscribeViewSet(ModelViewSet):
     serializer_class = UserSubscribeSerializer
     http_method_names = ('get',)
     permission_classes = (IsAuthenticated,)
+    pagination_class = CustomPagination
 
     def get_queryset(self):
         user = self.request.user

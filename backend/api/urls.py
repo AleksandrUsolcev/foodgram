@@ -11,7 +11,7 @@ v10.register('tags', views.TagViewSet, basename='tags')
 v10.register('recipes', views.RecipeViewSet, basename='recipes')
 v10.register('ingredients', views.IngredientViewSet, basename='ingredients')
 v10.register(
-    'users/subscribtions',
+    'users/subscriptions',
     views.UserSubscribeViewSet,
     basename='users_subscribe'
 )
