@@ -3,7 +3,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from recipes.models import Favorite, Ingredient, Recipe, ShoppingCart, Tag
 from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet, ViewSet
 from users.models import Subscribe, User
@@ -11,14 +11,14 @@ from users.models import Subscribe, User
 from .filters import RecipeFilter
 from .paginators import CustomPagination
 from .serializers import (IngredientSerializer, RecipeSerializer,
-                          TagSerializer, UserSubscribeSerializer)
+                          RecipeShortSerializer, TagSerializer,
+                          UserSubscribeSerializer)
 from .utils import add_remove, shopping_list_pdf
 
 
 class TagViewSet(ModelViewSet):
     serializer_class = TagSerializer
     queryset = Tag.objects.all()
-    permission_classes = (AllowAny,)
     http_method_names = ('get',)
     pagination_class = None
 
@@ -28,7 +28,6 @@ class RecipeViewSet(ModelViewSet):
     queryset = Recipe.objects.all()
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
-    permission_classes = (AllowAny,)
     http_method_names = ('get', 'post', 'patch', 'delete')
     pagination_class = CustomPagination
 
@@ -40,6 +39,7 @@ class RecipeViewSet(ModelViewSet):
         permission_classes=[IsAuthenticated]
     )
     def favorite(self, request, *args, **kwargs):
+        self.serializer_class = RecipeShortSerializer
         action = add_remove(self, request, 'recipe', Favorite, Recipe)
         return action
 
@@ -51,6 +51,7 @@ class RecipeViewSet(ModelViewSet):
         permission_classes=[IsAuthenticated]
     )
     def cart(self, request, *args, **kwargs):
+        self.serializer_class = RecipeShortSerializer
         action = add_remove(self, request, 'recipe', ShoppingCart, Recipe)
         return action
 
@@ -72,7 +73,6 @@ class IngredientViewSet(ModelViewSet):
     filter_backends = (DjangoFilterBackend, SearchFilter)
     filterset_fields = ('name',)
     search_fields = ('name',)
-    permission_classes = (AllowAny,)
     http_method_names = ('get',)
 
 
@@ -90,6 +90,7 @@ class UserSubscribeViewSet(ModelViewSet):
 
 class UserSubscribeActionViewSet(ViewSet):
     http_method_names = ('post', 'delete')
+    serializer_class = UserSubscribeSerializer
 
     @action(
         methods=['POST', 'DELETE'],

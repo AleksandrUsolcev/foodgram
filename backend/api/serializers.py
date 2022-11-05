@@ -27,6 +27,9 @@ class UserListSerializer(serializers.ModelSerializer):
 
     def get_subscribed_info(self, obj):
         request = self.context.get('request')
+        # for successful subscribe response from utils.py
+        if request is None:
+            return True
         if request.user.is_authenticated:
             subscribed = request.user.subscribed.filter(author=obj)
             return subscribed.exists()
@@ -97,9 +100,10 @@ class UserSubscribeSerializer(UserListSerializer):
 
     def recipes_limit(self, obj):
         request = self.context.get('request')
-        recipes_limit = request.query_params.get('recipes_limit', None)
         queryset = obj.recipes.all()
-        if recipes_limit is not None:
-            queryset = queryset[:int(recipes_limit)]
+        if request:
+            recipes_limit = request.query_params.get('recipes_limit', None)
+            if recipes_limit:
+                queryset = queryset[:int(recipes_limit)]
         serializer = RecipeShortSerializer(queryset, many=True)
         return serializer.data

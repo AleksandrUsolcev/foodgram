@@ -14,7 +14,6 @@ from rest_framework.status import (HTTP_201_CREATED, HTTP_204_NO_CONTENT,
 def add_remove(self, request, target, obj, target_obj):
     """ Функция для подписок, пополнения корзины или лайков пользователем """
 
-    SUCESS_ADD = {'detail': f"Success add to your {obj.__name__}'s list"}
     SUCESS_DELETE = {
         'detail': f"Success delete from your {obj.__name__}'s list"}
     ALREADY_IN_LIST = {'errors': f"Already in your {obj.__name__}'s list"}
@@ -32,7 +31,8 @@ def add_remove(self, request, target, obj, target_obj):
         return Response(ALREADY_IN_LIST, status=HTTP_400_BAD_REQUEST)
     elif request.method == 'POST':
         obj.objects.create(**target_kwargs)
-        return Response(SUCESS_ADD, status=HTTP_201_CREATED)
+        serializer = self.serializer_class(get_obj)
+        return Response(serializer.data, status=HTTP_201_CREATED)
 
     if request.method == 'DELETE' and filtered.exists():
         filtered.delete()
