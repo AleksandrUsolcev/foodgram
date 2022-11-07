@@ -35,9 +35,6 @@ class Ingredient(models.Model):
         verbose_name='Единица измерения',
         max_length=64
     )
-    amount = models.PositiveIntegerField(
-        verbose_name='Количество'
-    )
 
     class Meta:
         verbose_name = 'Ингредиент'
@@ -91,6 +88,31 @@ class Recipe(models.Model):
 
     def __str__(self):
         return f'{self.name}'
+
+
+class Amount(models.Model):
+    amount = models.PositiveIntegerField(
+        verbose_name='Количество'
+    )
+    ingredient = models.ForeignKey(
+        Ingredient,
+        on_delete=models.CASCADE,
+        verbose_name='Ингредиент',
+        related_name='amounts'
+    )
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+        verbose_name='Рецепт',
+        related_name='ingredient_amounts'
+    )
+
+    class Meta:
+        verbose_name = 'Количество ингредиентов'
+        verbose_name_plural = 'Количество ингредиентов'
+
+    def __str__(self):
+        return f'{self.ingredient} ({self.amount}) in {self.recipe}'
 
 
 class ShoppingCart(models.Model):

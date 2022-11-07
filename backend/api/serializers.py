@@ -27,7 +27,7 @@ class UserListSerializer(serializers.ModelSerializer):
 
     def get_subscribed_info(self, obj):
         request = self.context.get('request')
-        # for successful subscribe response from utils.py
+        # check for successful subscribe POST response from utils.add_remove
         if request is None:
             return True
         if request.user.is_authenticated:
