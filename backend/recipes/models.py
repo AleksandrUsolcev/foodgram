@@ -5,13 +5,39 @@ from users.models import User
 
 class Tag(models.Model):
     """ Тег рецепта """
+
+    CRIMSON = 'Crimson'
+    PALE_VIOLET_RED = 'PaleVioletRed'
+    ORANGE = 'Orange'
+    DARK_KHAKI = 'DarkKhaki'
+    VIOLET = 'Violet'
+    CHOCOLATE = 'Chocolate'
+    SILVER = 'Silver'
+    LIME = 'Lime'
+    DEEP_SKY_BLUE = 'DeepSkyBlue'
+    OLIVE = 'Olive'
+
+    COLORS = (
+        (CRIMSON, '#DC143C'),
+        (PALE_VIOLET_RED, '#DB7093'),
+        (ORANGE, '#FFA500'),
+        (DARK_KHAKI, '#BDB76B'),
+        (VIOLET, '#EE82EE'),
+        (CHOCOLATE, '#D2691E'),
+        (SILVER, '#C0C0C0'),
+        (LIME, '#00FF00'),
+        (DEEP_SKY_BLUE, '#00BFFF'),
+        (OLIVE, '#808000')
+    )
+
     name = models.CharField(
         verbose_name='Название',
         max_length=254
     )
     color = models.CharField(
         verbose_name='HEX-код',
-        max_length=7
+        max_length=48,
+        choices=COLORS
     )
     slug = models.SlugField(
         verbose_name='Slug'
