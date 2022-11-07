@@ -1,7 +1,7 @@
 import base64
 
 from django.core.files.base import ContentFile
-from recipes.models import Ingredient, Recipe, Tag
+from recipes.models import Ingredient, Recipe, Tag, Amount
 from rest_framework import serializers
 from users.models import User
 
@@ -48,10 +48,21 @@ class IngredientSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class AmountIngredientSerializer(IngredientSerializer):
+    id = serializers.IntegerField(source='ingredient.id')
+    name = serializers.CharField(source='ingredient.name')
+    measurement_unit = serializers.CharField(
+        source='ingredient.measurement_unit')
+
+    class Meta:
+        model = Amount
+        exclude = ('ingredient', 'recipe')
+
+
 class RecipeSerializer(serializers.ModelSerializer):
     image = Base64ImageField(required=True)
     tags = TagSerializer(many=True)
-    ingredients = IngredientSerializer(many=True, required=True)
+    ingredients = serializers.SerializerMethodField('get_ingredients')
     author = UserListSerializer(required=True)
     is_favorited = serializers.SerializerMethodField('get_favorited_info')
     is_in_shopping_cart = serializers.SerializerMethodField('get_cart_info')
@@ -64,6 +75,11 @@ class RecipeSerializer(serializers.ModelSerializer):
         instance.image = validated_data.get('image', instance.image)
         instance.save()
         return instance
+
+    def get_ingredients(self, obj):
+        queryset = Amount.objects.filter(recipe=obj)
+        serializer = AmountIngredientSerializer(queryset, many=True)
+        return serializer.data
 
     def get_favorited_info(self, obj):
         request = self.context.get('request')

@@ -2,13 +2,12 @@ from django.db.models import Sum
 from django_filters.rest_framework import DjangoFilterBackend
 from recipes.models import Favorite, Ingredient, Recipe, ShoppingCart, Tag
 from rest_framework.decorators import action
-from rest_framework.filters import SearchFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet, ViewSet
 from users.models import Subscribe, User
 
-from .filters import RecipeFilter
+from .filters import IngredientFilter, RecipeFilter
 from .paginators import CustomPagination
 from .serializers import (IngredientSerializer, RecipeSerializer,
                           RecipeShortSerializer, TagSerializer,
@@ -70,9 +69,9 @@ class CartDownloadView(APIView):
 class IngredientViewSet(ModelViewSet):
     serializer_class = IngredientSerializer
     queryset = Ingredient.objects.all()
-    filter_backends = (DjangoFilterBackend, SearchFilter)
-    filterset_fields = ('name',)
-    search_fields = ('name',)
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = IngredientFilter
+    pagination_class = None
     http_method_names = ('get',)
 
 

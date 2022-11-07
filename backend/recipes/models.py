@@ -98,7 +98,7 @@ class Amount(models.Model):
         Ingredient,
         on_delete=models.CASCADE,
         verbose_name='Ингредиент',
-        related_name='amounts'
+        related_name='amount'
     )
     recipe = models.ForeignKey(
         Recipe,
