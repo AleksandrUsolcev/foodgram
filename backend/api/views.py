@@ -63,9 +63,12 @@ class RecipeViewSet(ModelViewSet):
         instance.image = serializer.validated_data.get('image', instance.image)
         instance.text = serializer.validated_data.get('text')
         instance.cooking_time = serializer.validated_data.get('cooking_time')
+        tags = serializer.validated_data.get('tags')
+        instance.tags.clear()
         instance.save()
         ingredients = serializer.validated_data.get('ingredients')
         Amount.objects.filter(recipe_id=pk).delete()
+        [instance.tags.add(tag) for tag in tags]
         for ingredient in ingredients:
             Amount.objects.create(
                 recipe_id=pk, amount=ingredient.get('amount'),
