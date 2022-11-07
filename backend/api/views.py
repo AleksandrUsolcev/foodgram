@@ -105,9 +105,9 @@ class RecipeViewSet(ModelViewSet):
 class CartDownloadView(APIView):
     def get(self, request):
         cart = request.user.cart.values(
-            'recipe__ingredients__name',
-            'recipe__ingredients__measurement_unit').order_by(
-            'recipe__ingredients__name').annotate(
+            'recipe__ingredients__ingredient__name',
+            'recipe__ingredients__ingredient__measurement_unit').order_by(
+            'recipe__ingredients__ingredient__name').annotate(
             total=Sum('recipe__ingredients__amount'))
         response = shopping_list_pdf(cart)
         return response

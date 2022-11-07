@@ -57,11 +57,6 @@ class Recipe(models.Model):
         verbose_name='Теги',
         related_name='recipes'
     )
-    ingredients = models.ManyToManyField(
-        Ingredient,
-        verbose_name='Ингредиенты',
-        related_name='recipes'
-    )
     name = models.CharField(
         verbose_name='Название',
         max_length=200
@@ -98,13 +93,13 @@ class Amount(models.Model):
         Ingredient,
         on_delete=models.CASCADE,
         verbose_name='Ингредиент',
-        related_name='amount'
+        related_name='amounts'
     )
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
         verbose_name='Рецепт',
-        related_name='ingredient_amounts'
+        related_name='ingredients'
     )
 
     class Meta:
