@@ -117,13 +117,13 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'users.User'
 
 DJOSER = {
-    "HIDE_USERS": False,
-    "SERIALIZERS": {
+    'HIDE_USERS': False,
+    'SERIALIZERS': {
         'user_list': 'api.serializers.UserListSerializer',
         'user': 'api.serializers.UserListSerializer',
         'current_user': 'api.serializers.UserListSerializer',
     },
-    "PERMISSIONS": {
+    'PERMISSIONS': {
         'user_list': ['users.permissions.UserPermission'],
         'user': ['users.permissions.UserPermission'],
         'current_user': ['users.permissions.UserPermission'],

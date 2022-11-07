@@ -48,6 +48,11 @@ class IngredientSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class IngredientPatchCreateSerializer(serializers.Serializer):
+    id = serializers.IntegerField(required=True)
+    amount = serializers.IntegerField(required=True)
+
+
 class AmountIngredientSerializer(IngredientSerializer):
     id = serializers.IntegerField(source='ingredient.id')
     name = serializers.CharField(source='ingredient.name')
@@ -70,11 +75,6 @@ class RecipeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipe
         fields = '__all__'
-
-    def update(self, instance, validated_data):
-        instance.image = validated_data.get('image', instance.image)
-        instance.save()
-        return instance
 
     def get_ingredients(self, obj):
         queryset = Amount.objects.filter(recipe=obj)
@@ -100,6 +100,19 @@ class RecipeShortSerializer(RecipeSerializer):
     class Meta:
         model = Recipe
         fields = ('id', 'name', 'image', 'cooking_time')
+
+
+class RecipeCreateSerializer(serializers.Serializer):
+    ingredients = IngredientPatchCreateSerializer(many=True)
+    tags = serializers.ListField(required=True)
+    image = Base64ImageField(required=True)
+    name = serializers.CharField(required=True)
+    text = serializers.CharField(required=True)
+    cooking_time = serializers.IntegerField(required=True)
+
+
+class RecipePatchSerializer(RecipeCreateSerializer):
+    image = Base64ImageField(required=False)
 
 
 class UserSubscribeSerializer(UserListSerializer):

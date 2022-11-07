@@ -1,15 +1,19 @@
 from django.db.models import Sum
 from django_filters.rest_framework import DjangoFilterBackend
-from recipes.models import Favorite, Ingredient, Recipe, ShoppingCart, Tag
+from recipes.models import (Amount, Favorite, Ingredient, Recipe, ShoppingCart,
+                            Tag)
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet, ViewSet
 from users.models import Subscribe, User
 
 from .filters import IngredientFilter, RecipeFilter
 from .paginators import CustomPagination
-from .serializers import (IngredientSerializer, RecipeSerializer,
+from .serializers import (IngredientSerializer, RecipeCreateSerializer,
+                          RecipePatchSerializer, RecipeSerializer,
                           RecipeShortSerializer, TagSerializer,
                           UserSubscribeSerializer)
 from .utils import add_remove, shopping_list_pdf
@@ -29,6 +33,46 @@ class RecipeViewSet(ModelViewSet):
     filterset_class = RecipeFilter
     http_method_names = ('get', 'post', 'patch', 'delete')
     pagination_class = CustomPagination
+
+    def create(self, request, *args, **kwargs):
+        serializer = RecipeCreateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        data = {}
+        data['author'] = request.user
+        data['image'] = serializer.validated_data.get('image')
+        data['name'] = serializer.validated_data.get('name')
+        data['text'] = serializer.validated_data.get('text')
+        data['cooking_time'] = serializer.validated_data.get('cooking_time')
+        ingredients = serializer.validated_data.get('ingredients')
+        tags = serializer.validated_data.get('tags')
+        recipe = Recipe.objects.create(**data)
+        [recipe.tags.add(tag) for tag in tags]
+        for ingredient in ingredients:
+            Amount.objects.create(
+                recipe=recipe, amount=ingredient.get('amount'),
+                ingredient_id=ingredient.get('id')
+            )
+        return Response(RecipeShortSerializer(recipe).data,
+                        status=HTTP_201_CREATED)
+
+    def update(self, request, pk, *args, **kwargs):
+        serializer = RecipePatchSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        instance = self.get_object()
+        instance.name = serializer.validated_data.get('name')
+        instance.image = serializer.validated_data.get('image', instance.image)
+        instance.text = serializer.validated_data.get('text')
+        instance.cooking_time = serializer.validated_data.get('cooking_time')
+        instance.save()
+        ingredients = serializer.validated_data.get('ingredients')
+        Amount.objects.filter(recipe_id=pk).delete()
+        for ingredient in ingredients:
+            Amount.objects.create(
+                recipe_id=pk, amount=ingredient.get('amount'),
+                ingredient_id=ingredient.get('id')
+            )
+        serializer = RecipeShortSerializer(instance)
+        return Response(serializer.data, HTTP_200_OK)
 
     @action(
         methods=['POST', 'DELETE'],
