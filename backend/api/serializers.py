@@ -110,6 +110,16 @@ class RecipeCreateSerializer(serializers.Serializer):
     text = serializers.CharField(required=True)
     cooking_time = serializers.IntegerField(required=True)
 
+    def validate(self, data):
+        ingredients = data.get('ingredients')
+        array = []
+        for ingredient in ingredients:
+            array.append(ingredient.get('id'))
+        if len(array) != len(set(array)):
+            raise serializers.ValidationError(
+                'Ингредиенты не должны повторяться')
+        return data
+
 
 class RecipePatchSerializer(RecipeCreateSerializer):
     image = Base64ImageField(required=False)

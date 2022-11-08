@@ -9,6 +9,7 @@ from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet, ViewSet
 from users.models import Subscribe, User
+from users.permissions import AllowAuthorOrReadOnly
 
 from .filters import IngredientFilter, RecipeFilter
 from .paginators import CustomPagination
@@ -33,6 +34,7 @@ class RecipeViewSet(ModelViewSet):
     filterset_class = RecipeFilter
     http_method_names = ('get', 'post', 'patch', 'delete')
     pagination_class = CustomPagination
+    permission_classes = (AllowAuthorOrReadOnly,)
 
     def create(self, request, *args, **kwargs):
         serializer = RecipeCreateSerializer(data=request.data)
