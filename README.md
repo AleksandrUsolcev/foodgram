@@ -32,7 +32,7 @@ source venv/Scripts/activate
 pip install -r requirements.txt
 ``` 
 
-Выполнить миграции, импортировать [ингредиенты](blob/master/data/ingredients.csv) и запустить проект
+Выполнить миграции, импортировать ингредиенты и запустить проект
 
 ```
 python manage.py migrate
