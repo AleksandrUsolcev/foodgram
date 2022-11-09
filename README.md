@@ -36,7 +36,7 @@ pip install -r requirements.txt
 
 ```
 python manage.py migrate
-python manage.py ingredients ../data/ingredients.csv
+python manage.py ingredients data/ingredients.csv
 python manage.py runserver
 ``` 
 

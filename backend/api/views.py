@@ -8,7 +8,6 @@ from rest_framework.viewsets import ModelViewSet, ViewSet
 from recipes.models import Favorite, Ingredient, Recipe, ShoppingCart, Tag
 from users.models import Subscribe, User
 from users.permissions import AllowAuthorOrReadOnly
-
 from .filters import IngredientFilter, RecipeFilter
 from .paginators import CustomPagination
 from .serializers import (IngredientSerializer, RecipeCreateUpdateSerializer,
