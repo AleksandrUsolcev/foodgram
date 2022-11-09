@@ -1,22 +1,23 @@
 import csv
 
 from django.core.management.base import BaseCommand
+
 from recipes.models import Ingredient
 
 
 class Command(BaseCommand):
-    help = 'Download CSV data for Ingredients'
+    help = 'Import CSV data for Ingredients'
 
     def add_arguments(self, parser):
         parser.add_argument(
-            'location',
+            'path',
             type=str,
-            help='Ingredients file location'
+            help='Ingredients file path'
         )
 
     def handle(self, *args, **kwargs):
-        location = kwargs.get('location').lower()
-        with open(location, 'rt', encoding='utf-8') as f:
+        path = kwargs.get('path')
+        with open(path, 'rt', encoding='utf-8') as f:
             reader = csv.reader(f, dialect='excel')
             count = 0
             for row in reader:

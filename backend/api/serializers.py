@@ -1,18 +1,9 @@
-import base64
-
-from django.core.files.base import ContentFile
-from recipes.models import Ingredient, Recipe, Tag, Amount
 from rest_framework import serializers
+
+from recipes.models import Amount, Ingredient, Recipe, Tag
 from users.models import User
 
-
-class Base64ImageField(serializers.ImageField):
-    def to_internal_value(self, data):
-        if isinstance(data, str) and data.startswith('data:image'):
-            format, imgstr = data.split(';base64,')
-            ext = format.split('/')[-1]
-            data = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
-        return super().to_internal_value(data)
+from .fields import Base64ImageField
 
 
 class UserListSerializer(serializers.ModelSerializer):
@@ -67,7 +58,7 @@ class AmountIngredientSerializer(IngredientSerializer):
 class RecipeSerializer(serializers.ModelSerializer):
     image = Base64ImageField(required=True)
     tags = TagSerializer(many=True)
-    ingredients = serializers.SerializerMethodField('get_ingredients')
+    ingredients = AmountIngredientSerializer(many=True)
     author = UserListSerializer(required=True)
     is_favorited = serializers.SerializerMethodField('get_favorited_info')
     is_in_shopping_cart = serializers.SerializerMethodField('get_cart_info')
@@ -75,11 +66,6 @@ class RecipeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipe
         fields = '__all__'
-
-    def get_ingredients(self, obj):
-        queryset = Amount.objects.filter(recipe=obj)
-        serializer = AmountIngredientSerializer(queryset, many=True)
-        return serializer.data
 
     def get_favorited_info(self, obj):
         request = self.context.get('request')
@@ -102,13 +88,14 @@ class RecipeShortSerializer(RecipeSerializer):
         fields = ('id', 'name', 'image', 'cooking_time')
 
 
-class RecipeCreateSerializer(serializers.Serializer):
+class RecipeCreateUpdateSerializer(RecipeSerializer):
     ingredients = IngredientPatchCreateSerializer(many=True)
-    tags = serializers.ListField(required=True)
-    image = Base64ImageField(required=True)
-    name = serializers.CharField(required=True)
-    text = serializers.CharField(required=True)
-    cooking_time = serializers.IntegerField(required=True)
+    tags = serializers.ListField(write_only=True)
+
+    class Meta:
+        model = Recipe
+        fields = ('ingredients', 'tags', 'image',
+                  'name', 'text', 'cooking_time')
 
     def validate(self, data):
         ingredients = data.get('ingredients')
@@ -120,9 +107,35 @@ class RecipeCreateSerializer(serializers.Serializer):
                 'Ингредиенты не должны повторяться')
         return data
 
+    def add_ingredients(self, ingredients_list, recipe):
+        amounts = [
+            Amount(
+                recipe=recipe,
+                amount=ingredient.get('amount'),
+                ingredient_id=ingredient.get('id')
+            ) for ingredient in ingredients_list
+        ]
+        Amount.objects.bulk_create(amounts)
 
-class RecipePatchSerializer(RecipeCreateSerializer):
-    image = Base64ImageField(required=False)
+    def create(self, validated_data):
+        request = self.context.get('request')
+        author = request.user
+        ingredients = validated_data.pop('ingredients')
+        tags = validated_data.pop('tags')
+        recipe = Recipe.objects.create(author=author, **validated_data)
+        recipe.tags.add(*tags)
+        self.add_ingredients(ingredients, recipe)
+        return recipe
+
+    def update(self, instance, validated_data):
+        ingredients = validated_data.pop('ingredients')
+        tags = validated_data.pop('tags')
+        instance.tags.clear()
+        instance.tags.add(*tags)
+        Amount.objects.filter(recipe_id=instance.pk).delete()
+        self.add_ingredients(ingredients, instance)
+        super().update(instance, validated_data)
+        return instance
 
 
 class UserSubscribeSerializer(UserListSerializer):
