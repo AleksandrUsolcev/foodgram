@@ -40,6 +40,8 @@ def add_remove(self, request, target, obj, target_obj):
     if request.method == 'DELETE':
         return Response(NOT_IN_LIST, status=HTTP_400_BAD_REQUEST)
 
+    return True
+
 
 def shopping_list_pdf(cart):
     """ Выгрузка списка покупок в pdf """

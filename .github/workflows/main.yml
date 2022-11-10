@@ -1,4 +1,4 @@
-name: filin_mate workflow
+name: foodgram main workflow
 
 on: [push]
 
