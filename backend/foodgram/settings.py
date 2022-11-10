@@ -11,7 +11,7 @@ SECRET_KEY = os.getenv(
     'DJANGO_SECRET_KEY',
     default="change-me-in-env-if-the-project-is-not-running-in-demo")
 
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
