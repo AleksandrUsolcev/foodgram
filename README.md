@@ -3,6 +3,14 @@
 
 Сервис "Продуктовый помощник", на котором пользователи публикуют рецепты блюд, добавляют чужие рецепты в избранное и подписываются на публикации других авторов. Рецепты так же можно добавлять в список покупок и выгрузить себе в PDF формате.
 
+[Демо проекта](http://example-foodgram.ddns.net/recipes)
+
+Аутентификация производится по **email и паролю**
+
+**Email админа:** admin@admin.admin
+
+**Пароль:** HskeIs029481
+
 ## Технологии
 
 - [Python](https://www.python.org/) 3.9+
@@ -42,4 +50,43 @@ python manage.py runserver
 
 ## Запуск проекта в docker контейнере
 
-будет готово ко второму этапу проверки
+Клонировать репозиторий и перейти в foodgram-project-react/infra/
+
+```bash
+git clone https://github.com/AleksandrUsolcev/foodgram-project-react.git
+cd foodgram-project-react/infra/
+``` 
+
+Клонировать [образец](/infra/example.env) файла переменного окружения и заполнить по необходимости
+
+```bash
+cp example.env .env
+``` 
+
+Развернуть docker контейнеры. Миграции и сбор статики производятся автоматически
+
+```
+docker-compose up -d
+``` 
+
+Создать суперпользователя
+
+```bash
+docker-compose exec web python manage.py createsuperuser
+```
+
+Импортировать ингредиенты
+
+```bash
+docker-compose exec web python manage.py ingredients data/ingredients.csv
+```
+
+Проект станет доступен по адресу `http://localhost/`
+
+## Примеры запросов к API
+
+Список запросов можно посмотреть перейдя на `http://localhost/api/docs/` развернутого проекта
+
+## Автор
+
+[Александр Усольцев](https://github.com/AleksandrUsolcev)
