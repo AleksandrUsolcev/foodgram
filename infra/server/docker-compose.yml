@@ -26,9 +26,7 @@ services:
   frontend:
     image: ${DOCKER_USERNAME}/${DOCKER_FRONT}
     volumes:
-      - ../frontend/:/app/result_build/
-    depends_on:
-      - web
+      - ./frontend/:/app/result_build/
 
   nginx:
     image: nginx:1.19.3
@@ -36,8 +34,8 @@ services:
       - 80:80
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
-      - ../frontend/build:/usr/share/nginx/html/
-      - ../docs/:/usr/share/nginx/html/api/docs/
+      - ./frontend/build:/usr/share/nginx/html/
+      - ./docs/:/usr/share/nginx/html/api/docs/
       - static:/var/html/static/
       - media:/var/html/media/
     depends_on:
