@@ -45,8 +45,7 @@ class RecipeViewSet(ModelViewSet):
     )
     def favorite(self, request, *args, **kwargs):
         self.serializer_class = RecipeShortSerializer
-        action = add_remove(self, request, 'recipe', Favorite, Recipe)
-        return action
+        return add_remove(self, request, 'recipe', Favorite, Recipe)
 
     @action(
         methods=['POST', 'DELETE'],
@@ -57,8 +56,7 @@ class RecipeViewSet(ModelViewSet):
     )
     def cart(self, request, *args, **kwargs):
         self.serializer_class = RecipeShortSerializer
-        action = add_remove(self, request, 'recipe', ShoppingCart, Recipe)
-        return action
+        return add_remove(self, request, 'recipe', ShoppingCart, Recipe)
 
 
 class CartDownloadView(APIView):
@@ -68,8 +66,7 @@ class CartDownloadView(APIView):
             'recipe__ingredients__ingredient__measurement_unit').order_by(
             'recipe__ingredients__ingredient__name').annotate(
             total=Sum('recipe__ingredients__amount'))
-        response = shopping_list_pdf(cart)
-        return response
+        return shopping_list_pdf(cart)
 
 
 class IngredientViewSet(ModelViewSet):
@@ -89,8 +86,7 @@ class UserSubscribeViewSet(ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        subscribed = User.objects.filter(subscribers__user=user)
-        return subscribed
+        return User.objects.filter(subscribers__user=user)
 
 
 class UserSubscribeActionViewSet(ViewSet):
@@ -105,5 +101,4 @@ class UserSubscribeActionViewSet(ViewSet):
         permission_classes=[IsAuthenticated]
     )
     def subscribe(self, request, *args, **kwargs):
-        action = add_remove(self, request, 'author', Subscribe, User)
-        return action
+        return add_remove(self, request, 'author', Subscribe, User)

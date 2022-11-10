@@ -29,7 +29,7 @@ def add_remove(self, request, target, obj, target_obj):
 
     if request.method == 'POST' and filtered.exists():
         return Response(ALREADY_IN_LIST, status=HTTP_400_BAD_REQUEST)
-    elif request.method == 'POST':
+    if request.method == 'POST':
         obj.objects.create(**target_kwargs)
         serializer = self.serializer_class(get_obj)
         return Response(serializer.data, status=HTTP_201_CREATED)
@@ -37,7 +37,7 @@ def add_remove(self, request, target, obj, target_obj):
     if request.method == 'DELETE' and filtered.exists():
         filtered.delete()
         return Response(SUCESS_DELETE, status=HTTP_204_NO_CONTENT)
-    elif request.method == 'DELETE':
+    if request.method == 'DELETE':
         return Response(NOT_IN_LIST, status=HTTP_400_BAD_REQUEST)
 
 
