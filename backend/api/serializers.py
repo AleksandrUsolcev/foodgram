@@ -98,6 +98,10 @@ class RecipeCreateUpdateSerializer(RecipeSerializer):
 
     def validate(self, data):
         ingredients = data.get('ingredients')
+        tags = data.get('tags')
+        if not tags:
+            raise serializers.ValidationError(
+                'Добавьте хотя бы один тег')
         array = []
         for ingredient in ingredients:
             if ingredient.get('amount') <= 0:
