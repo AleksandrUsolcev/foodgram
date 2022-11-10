@@ -106,7 +106,7 @@ class RecipeCreateUpdateSerializer(RecipeSerializer):
         for ingredient in ingredients:
             if ingredient.get('amount') <= 0:
                 raise serializers.ValidationError(
-                    'Значение ингредиента должны быть больше 0')
+                    'Значение ингредиента должно быть больше 0')
             array.append(ingredient.get('id'))
         if len(array) != len(set(array)):
             raise serializers.ValidationError(
