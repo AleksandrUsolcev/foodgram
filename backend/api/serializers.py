@@ -100,10 +100,16 @@ class RecipeCreateUpdateSerializer(RecipeSerializer):
         ingredients = data.get('ingredients')
         array = []
         for ingredient in ingredients:
+            if ingredient.get('amount') <= 0:
+                raise serializers.ValidationError(
+                    'Значение ингредиента должны быть больше 0')
             array.append(ingredient.get('id'))
         if len(array) != len(set(array)):
             raise serializers.ValidationError(
                 'Ингредиенты не должны повторяться')
+        if len(array) == 0:
+            raise serializers.ValidationError(
+                'Добавьте хотя бы один ингредиент')
         return data
 
     def add_ingredients(self, ingredients_list, recipe):
